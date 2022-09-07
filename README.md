@@ -19,6 +19,13 @@
 - **uri** - 
 
 ----
+## FSET Resource Names
+The following FSET Resource Names (FRN) are used by this service:
+- `fset:grp:group:groupId` -  FSET Group   
+- `fset:grp:template:templateId` - FSET Template   
+- `fset:grp:assignment:<classification>:<persona>:<scope>:<jurisdiction>:<function>` - FSET Assignment 
+- `fset:user:user:userId` - FSET User
+
 * * * 
 
 ## APIs
@@ -34,27 +41,101 @@ An error will be returned under the following conditions:
 4. The group name does not meet the nameing requirements
 
 ```
-create_group(GroupName='string', GroupDescription='string', 'OwnerId='string')
+create_group(GroupName='string', GroupDescription='string', OwnerFrn='string')
 ```
 #### Parameters
 - **GroupName** - Name of the group. This must consist of `[a-zA-Z][a-zA-Z0-9]{3,}`
 - **GroupDescription** (optional) - Arbitrary description.
-- **OwnerId** - User ID of the group owner.
+- **OwnerFrn** - User FRN to be the group owner.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
-    'GroupId' : 'string',
-    'OwnerId' : 'string'
+    'GroupFrn' : 'string',
+    'OwnerFrn' : 'string'
+    }
+}
+```
+#### Details
+- **GroupName** (string) - Name of the group
+- **GroupFrn** (string) - Group FRN
+- **OwnerFrn** - (string) - User FRN of the group owner
+
+
+### List Groups
+List all groups.
+
+An error will be returned under the following conditions:
+1. The caller does not have necessary permissions to create groups
+
+```
+list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
+```
+
+#### Parameters
+- **Filters** (optional) - One or more filters
+  - `Owner` - The FRN of an owner to filter the results
+  - `Assignments` - The FRN of one or more assignments to filter
+  - `Users` - The FRN of one or more users
+
+#### Response
+```
+{
+    'Groups': {
+        'GroupFrn': 'string',
+        'GroupName': 'string',
+        'OwnerFrn': 'string'
     }
 }
 ```
 #### Details
 - **GroupName** - New name of the group
-- **GroupId** - ID of the group
-- **OwnerId** - User ID of the group owner
+- **GroupFrn** - FRN of the group
+- **OwnerFrn** - User FRN of the group owner
 
+### Describe Group
+Get information about a single FSET Group.
+
+An error will be returned under the following conditions:
+1. The caller does not have necessary permissions to describe groups
+2. The group does not exist
+
+```
+list_groups(GroupFrn='string')
+```
+#### Parameters
+- **GroupFrn** - FRN of the group to be described.
+
+#### Response
+```
+{ 'GroupInfo' : {
+    'GroupName' : 'string',
+    'GroupFrn' : 'string',
+    'OwnerFrn' : 'string',
+    'AvailableAssignments': [
+        'string',
+    ],
+    'Blueprints': [
+        'string',
+    ],
+    'UserAssignments': [
+        {
+            'UserFrn': 'string',
+            'AssignmentFrns' : ['string',]
+        }
+    ]
+}
+```
+#### Details
+- **GroupName** - New name of the group
+- **GroupFrn** - FRN of the group
+- **OwnerFrn** - FRN of the owner
+- **AvailableAssignments** - List of available assignement FRNs associated to the group
+- **Blueprints** - List of Blueprint FRNs associated to the group
+- **UserAssignments** - List of all user assignments in the group
+  - **UserFrn** - FRN of the User
+  - **AssignmentFrns** - List of all assignment FRNs associated with the User
 
 ### Delete Group
 Deletes an existing group. 
@@ -65,10 +146,10 @@ An error will be returned under the following conditions:
 3. Group has active assignements that require deleting first.
 
 ```
-delete_group(GroupId='string')
+delete_group(GroupFrn='string')
 ```
 #### Parameters
-- **GroupId** - Id of the group to be deleted.
+- **GroupFrn** - FRN of the group to be deleted.
 
 #### Response
 ```
@@ -84,26 +165,25 @@ An error will be returned under the following conditions:
 4. The group name does not meet the nameing requirements
 
 ```
-update_group_attributes(GroupId='string', GroupName='string',
+update_group_attributes(GroupFrn='string', GroupName='string',
         GroupDescription='string')
 ```
 #### Parameters
-- **GroupId** - Id of the group to be updated.
+- **GroupFrn** - FRN of the group to be updated.
 - **GroupName** (optional) - Name of the group. This must consist of `[a-zA-Z]([a-zA-Z0-9])+`
 - **GroupDescription** (optional) - Arbitrary description.
 
 #### Response
 ```
-{ 'GroupInfo' : {
+{ 'GroupAttributeInfo' : {
     'GroupName' : 'string',
-    'GroupId' : 'string',
-    'OwnerId' : 'string'
+    'GroupFrn' : 'string'
     }
 }
 ```
 #### Details
 - **GroupName** - New name of the group
-- **GroupId** - ID of the group
+- **GroupFrn** - FRN of the group
 
 ### Update Group Owner
 Updates the group owner. When the owner is changed, an FSETGrp Admin assignment is automatically added for the new owner. The old owner will retain the FSETGrp Admin assignment until it is explicitly removed.
@@ -114,103 +194,102 @@ An error will be returned under the following conditions:
 3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role.
 
 ```
-update_group_owner(GroupId='string', OwnerId='string')
+update_group_owner(GroupFrn='string', OwnerFrn='string')
 ```
 #### Parameters
-- **GroupId** - Id of the group to be updated.
-- **OwnerId** - User ID of the new group owner.
+- **GroupFrn** - FRN of the group to be updated.
+- **OwnerFrn** - User FRN of the new group owner.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
-    'GroupId' : 'string',
-    'OwnerId' : 'string'
+    'GroupFrn' : 'string',
+    'OwnerFrn' : 'string'
     }
 }
 ```
 #### Details
-- **GroupName** - New name of the group
-- **GroupId** - ID of the group
-- **OwnerId** - User ID of the group owner after the update is committed
+- **GroupName** (string) - Name of the group
+- **GroupFrn** (string) - Group FRN
+- **OwnerFrn** - (string) - User FRN of the group owner
 
 
-### Add Rule to a Group
-Adds a rule or set of rules to the group. The rules can then be used to make assignments within the group at a later time. If neither a rule or template is specified, the operation silently does nothing.
+### Add Assignments to a Group
+Adds an assignment or set of assignments to the group. The assignments can then be used to make assignments to a user at a later time. If neither an assignment or template is specified, the operation silently does nothing.
 
-If a template is specified, only the individual rules contained in the template will be persisted on the group.
+If a template is specified, only the individual assignments contained in the template will be persisted on the group.
 
 An error will be returned under the following conditions:
 1. The group does not exist
 2. The caller does not have necessary permissions to update the owner
-3. Invalid rule due to mixed Jurisdictions
+3. Invalid assignment due to mixed Jurisdictions
 4. Invalid template
 5. Unknown rule
-6. Rule already exists
+6. Assignment already exists
 7. Maximum number of rules exceeded
 
 ```
-add_rule(GroupId='string', RuleId='string', TemplateName='string')
+add_assignment(GroupFrn='string', AssignmentFrn='string', TemplateFrn='string')
 ```
 #### Parameters
-- **GroupId** - Id of the group to be updated.
-- **RuleId** (optional) - Id of the rule being added to the group.
-- **TemplateName** (optional)- The name of a template containing a set of rules, all of which will be added. Duplicates will be silenty ignored.
+- **GroupFrn** - Id of the group to be updated.
+- **AssignmentFrn** (optional) - FRN of the rule being added to the group.
+- **TemplateFrn** (optional)- FRN of a template containing a set of assignments, all of which will be added. Duplicates will be silenty ignored.
 
 #### Response
 ```
 { 'GroupRuleInfo' : {
     'GroupName' : 'string'
-    'GroupId' : 'string'
-    'Rules' : [
-        {'RuleId' : 'string'}
-        ]
-    }
+    'GroupFRN' : 'string'
+    'Assignments' : [
+        {'AssignmentFrn' : 'string'}
+    ]
 }
 ```
 #### Details
 - **GroupName** - Name of the group
-- **GroupId** - ID of the group
-- **Rules** - List of rules assocated to the group
-- **RuleId** - ID of a rule
+- **GroupFrn** - FRN of the group
+- **Assignments** - List of assignements assocated to the group
+- **AssignmentFrn** - FRN of an assignment
 
 
-### Remove Rule from a Group
-Remove a rule from the group.
+### Remove Assignment from a Group
+Remove an assignment from the group.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to update the owner
-3. Rule is not in the group
-4. Rule can not be removed from the group. This mainly applies to the FSETGrp Admin rule
+2. The caller does not have necessary permissions to update the assignments
+3. Assignment is not in the group
+4. Assignment can not be removed from the group. This mainly applies to the FSETGrp Admin rule
 5. Assignments exist using the rule
 
 ```
-remove_rule(GroupId='string', RuleId='string')
+remove_assignment(GroupFrn='string', AssignmentFrn='string')
 ```
 #### Parameters
-- **GroupId** - Id of the group to be updated.
-- **RuleId** - Id of the rule being removed.
+- **GroupFrn** - FRN of the group to be updated.
+- **AssignmentFrn** - FRN of an assignment
 
 #### Response
 ```
-{ 'GroupRuleInfo' : {
+{ 'GroupTemplateInfo' : {
     'GroupName' : 'string'
-    'GroupId' : 'string'
-    'Rules' : [
-        {'RuleId' : 'string'}
+    'GroupFrn' : 'string'
+    'Assignments' : [
+        {'AssignmentFrn' : 'string'}
         ]
     }
 }
 ```
 #### Details
 - **GroupName** - Name of the group
-- **GroupId** - ID of the group
-- **Rules** - List of remaining rules assocated to the group
-- **RuleId** - ID of a rule
+- **GroupFrn** - FRN of the group
+- **Assignments** - List of remaining assignments assocated to the group
+- **AssignmentFrn** - FRN of an assignment
 
-### Create Rule Template
-Create a Rule Template that can later be used to add rules to a group in an efficient manner.
+### Create Assignment Template
+Create an Assignment Template that can later be used to add rules to a group in an efficient manner.
 
 An error will be returned under the following conditions:
 1. The template already exists
@@ -219,64 +298,69 @@ An error will be returned under the following conditions:
 4. Mixed Jurisdiction not allowed
 
 ```
-create_rule_template(TemplateName='string', TemplateDescription ='string', Rules=[RuleId])
+create_template(TemplateName='string', TemplateDescription ='string', Assignments=['string'])
 ```
 #### Parameters
 - **TemplateName** - Arbitrary name of the new template.
 - **TemplateDescription** (optional) - Arbitrary description of the template
-- **Rules** - List of individual rules.
-- **RuleId** - ID of an individual rule.
+- **Assignments** - List of individual assignment FRNs.
 
 #### Response
 ```
 { 'TemplateInfo' : {
     'TemplateName' : 'string',
-    'Rules' : [
-        {'RuleId' : 'string'}
+    'Assignments' : [
+        {'AssignmentFrn' : 'string'}
         ]
     }
 }
 ```
 #### Details
 - **TemplateName** - Name of the template
-- **Rules** - List of rules in the template
-- **RuleId** - ID of a rule
+- **Assignments** - List of assignments in the template
+- **AssignmentFrn** - FRN of a rule
 
-### Delete Rule Template
-Delete a Rule Template.
+### Delete Assignment Template
+Delete an Assignment Template.
 
 An error will be returned under the following conditions:
 1. The template does not exist
 2. The caller does not have necessary permissions to delete templates
 
 ```
-delete_rule_template(TemplateName='string')
+delete_assignment_template(TemplateFrn='string')
 ```
 #### Parameters
-- **TemplateName** - Arbitrary name of the new template.
+- **TemplateFrn** - FRN of the template to be deleted.
 
 #### Response
 ```
 { }
 ```
 
-### List Rule Templates
-List all Rule Templates.
+### List Assignment Templates
+List all Templates.
 
 An error will be returned under the following conditions:
 1. The caller does not have necessary permissions to list templates
 
 ```
-list_rule_templates()
+list_assignment_templates()
 ```
 #### Response
 ```
 { 'Templates' : 
     [
         {
+            'TemplateFrn' : 'string',
             'TemplateName' : 'string',
             'TemplateDescription' : 'string'
         }
     ]
 }
 ```
+#### Details
+- **TemplateFrn** - FRN of the template
+- **TemplateName** - Name of the template
+- **TemplateDescription** - Description of the template
+
