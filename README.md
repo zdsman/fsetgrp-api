@@ -365,3 +365,93 @@ list_assignment_templates()
 - **TemplateName** - Name of the template
 - **TemplateDescription** - Description of the template
 
+### Add Source Repository to a Group
+Adds a source repository (ie. github) to the group. A source repository can only be associated to one group at a time. The permissions to access the repository may take up to 10 minutes to replicate into the FSET Identity provider.
+
+A repository with or without a Blueprint can be added to the group.
+
+An error will be returned under the following conditions:
+1. The repository does not exist
+2. The caller does not have necessary permissions to add repositories
+3. Invalid repository
+4. Repository allready assigned to a group.
+
+```
+add_source_repository(GroupFri='string', RepoUrl='string')
+```
+#### Parameters
+- **GroupFri** - FRI of the group to be updated.
+- **RepoUrl** - The URL of the repository
+
+#### Response
+```
+{ }
+```
+#### Details
+Nothing is response at this time.
+
+### List Source Repositories in a Group
+List source repositories (ie. github) in the group. 
+
+An error will be returned under the following conditions:
+1. The group does not exist
+2. The caller does not have necessary permissions to list repositories
+
+```
+list_source_repositories(GroupFri='string')
+```
+#### Parameters
+- **GroupFri** - FRI of the group for which repos will be listed.
+
+#### Response
+```
+{ 
+    'Repositories' : {
+        'GroupName' : 'string',
+        'GroupFri' : 'string',
+        'UrlRepos' : [
+            {
+                'RepoUrl' : 'string',
+                'BlueprintName' : 'string'
+            }
+        ],
+        'ArnRepos' : [
+            {
+                'RepoArn' : 'string',
+                'BlueprintName' : 'string'
+            }
+        ]
+    }
+}
+```
+#### Details
+- **GroupFri** - FRI of the FSET Group
+- **GroupName** - Name of the FSET Group
+- **UrlRepos** - List of the source repositories that use a URL for the identifier
+  - **RepoUrl** - The URL of the source repository
+  - **BlueprintName** - The Blueprint name found in the repository. This will not be present if the repo doesn't contain a valid blueprint.yml file.
+- **ArnRepos** - List of the source repositories that use an AWS ARN for the identifier
+  - **RepoArn** - The AWS ARN of the source repository
+  - **BlueprintName** - The Blueprint name found in the repository. This will not be present if the repo doesn't contain a valid blueprint.yml file.
+
+### Remove a Source Repository from a Group
+Remove a source repository (ie. github) from the group. The removal of permissions for the repository may take up to 10 minutes to be replicated into the FSET Identity provider.
+
+An error will be returned under the following conditions:
+1. The group does not exist
+2. The repository isn't associated to the group
+3. The caller does not have necessary permissions to list repositories
+
+```
+remove_source_repository(GroupFri='string', RepoUrl='string')
+```
+#### Parameters
+- **GroupFri** - FRI of the group for which the repo will be removed.
+- **RepoUrl** - The URL of the repository
+
+#### Response
+```
+{ }
+```
+#### Details
+No response details
