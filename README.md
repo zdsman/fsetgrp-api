@@ -64,10 +64,10 @@ create_group(GroupName='string', GroupDescription='string', OwnerFri='string')
 
 
 ### List Groups
-List all groups.
+List all groups. If the caller has an assignment in a group, the results will always include those groups regardless of their assignments. Otherwise, an enabling assignment is necessary.
 
 An error will be returned under the following conditions:
-1. The caller does not have necessary permissions to list groups
+1. The caller does not have an enabling assignment to list groups AND has no assignments in any group.
 
 ```
 list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
@@ -93,6 +93,33 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 - **GroupName** - New name of the group
 - **GroupFri** - FRI of the group
 - **OwnerFri** - User FRI of the group owner
+
+#### Enabling Assignments
+- `fset:grp:assignment:*:architect:*:o-*:observer`
+- `fset:grp:assignment:*:architect:*:g-<groupId>:observer`
+- `fset:grp:assignment:*:bi-admin:*:o-*:limitedObserver`
+- `fset:grp:assignment:*:dba-manager:*:o-*:expertContributor`
+- `fset:grp:assignment:*:dba:*:o-*:expertContributor`
+- `fset:grp:assignment:*:db-manager:*:g-<groupId>:expertContributor`
+- `fset:grp:assignment:*:data-engineer:*:g-<groupId>:expertContributor`
+- `fset:grp:assignment:*:dl-admin:*:g-<groupId>:expertContributor`
+- `fset:grp:assignment:*:data-scientist:*:g-<groupId>:observer`
+- `fset:grp:assignment:*:developer:*:[s]g-<groupId>:*`
+- `fset:grp:assignment:*:expense-manager:*:o-*>:observer`
+- `fset:grp:assignment:*:experience-manager:*:g-<groupId>:*Observer`
+- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+- `fset:grp:assignment:*:fset-group-admin:*:o-*>:*`
+- `fset:grp:assignment:*:operator:*:[s]g-<groupId>:operations`
+- `fset:grp:assignment:*:operator:*:[s]g-<groupId>:*Observer`
+- `fset:grp:assignment:*:perf-test-admin:*:o-*:Observer`
+- `fset:grp:assignment:*:platform-sys-admin:*:o-*:expertContributor`
+- `fset:grp:assignment:*:product-account-owner:*:o-*:expertContributor` - look bogus jurisdiction
+- `fset:grp:assignment:*:program-manager:*:o-*:*Observer`
+- `fset:grp:assignment:*:program-manager:*:o-*:*Observer`
+- `fset:grp:assignment:*:security-admin:*:o-*:limitedObserver`
+- `fset:grp:assignment:*:site-reliability-engineer:*:o-*:operations`
+- `fset:grp:assignment:*:user-account-admin:*:o-*:expertContributor`
+
 
 ### Describe Group
 Get information about a single FSET Group.
@@ -142,7 +169,7 @@ Deletes an existing group.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have permission to delete the group. Only a Group Owner has permissions to delete a group.
+2. The caller is not the owner of the group. Only a group owner can delete a group.
 3. Group has active assignements that require deleting first.
 
 ```
@@ -161,7 +188,7 @@ Update group attributes.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to update group attributes
+2. The caller does not have an enabling assignment to update group attributes
 4. The group name does not meet the nameing requirements
 
 ```
@@ -190,7 +217,7 @@ Updates the group owner. When the owner is changed, an FSETGrp Admin assignment 
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to update the owner
+2. The caller does not have an enabling assignment to update the owner
 3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role.
 
 ```
@@ -222,7 +249,7 @@ If a template is specified, only the individual assignments contained in the tem
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to add assignments
+2. The caller does not have an enabling assignment to add assignments
 3. Invalid assignment due to mixed Jurisdictions
 4. Invalid assignment due to Organization Jurisdiction restriction. Assignment with Organization jurisdiction can only be in one group.
 5. Invalid template
@@ -260,7 +287,7 @@ Remove an assignment from the group. Before an Assignment can be removed all use
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to remove the assignment
+2. The caller does not have an enabling assignment to remove the assignment
 3. Assignment is not in the group
 4. Assignment can not be removed from the group. This mainly applies to the FSETGrp Admin assignments. There must always be a FSETGrp Admin assigned.
 5. Assignment is associated to one or more users.
@@ -294,7 +321,7 @@ Create an Assignment Template that can later be used to add rules to a group in 
 
 An error will be returned under the following conditions:
 1. The template already exists
-2. The caller does not have necessary permissions to create templates
+2. The caller does not have an enabling assignment to create templates
 3. Invalid assignment specified
 4. Mixed Jurisdiction assignments not allowed
 
@@ -326,7 +353,7 @@ Delete an Assignment Template.
 
 An error will be returned under the following conditions:
 1. The template does not exist
-2. The caller does not have necessary permissions to delete templates
+2. The caller does not have an enabling assignment to delete templates
 
 ```
 delete_assignment_template(TemplateFri='string')
@@ -343,7 +370,7 @@ delete_assignment_template(TemplateFri='string')
 List all Templates.
 
 An error will be returned under the following conditions:
-1. The caller does not have necessary permissions to list templates
+1. The caller does not have an enabling assignment to list templates
 
 ```
 list_assignment_templates()
@@ -372,7 +399,7 @@ A repository with or without a Blueprint can be added to the group.
 
 An error will be returned under the following conditions:
 1. The repository does not exist
-2. The caller does not have necessary permissions to add repositories
+2. The caller does not have an enabling assignment to add repositories
 3. Invalid repository
 4. Repository allready assigned to a group.
 
@@ -395,7 +422,7 @@ List source repositories (ie. github) in the group.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to list repositories
+2. The caller does not have an enabling assignment to list repositories
 
 ```
 list_source_repositories(GroupFri='string')
@@ -440,7 +467,7 @@ Remove a source repository (ie. github) from the group. The removal of permissio
 An error will be returned under the following conditions:
 1. The group does not exist
 2. The repository isn't associated to the group
-3. The caller does not have necessary permissions to list repositories
+3. The caller does not have an enabling assignment to list repositories
 
 ```
 remove_source_repository(GroupFri='string', RepoUrl='string')
