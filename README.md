@@ -21,10 +21,10 @@
 ----
 ## FSET Resource Names
 The following FSET Resource Names (FRN) are used by this service:
-- `fset:grp:group:groupId` -  FSET Group   
-- `fset:grp:template:templateId` - FSET Template   
+- `fset:grp:group:<groupId>` -  FSET Group   
+- `fset:grp:template:<templateId>` - FSET Template   
 - `fset:grp:assignment:<classification>:<persona>:<scope>:<jurisdiction>:<function>` - FSET Assignment 
-- `fset:user:user:userId` - FSET User
+- `fset:user:user:<userId>` - FSET User
 
 * * * 
 
