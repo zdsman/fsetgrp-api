@@ -128,7 +128,7 @@ describe_group(GroupFri='string')
 }
 ```
 #### Details
-- **GroupName** - New name of the group
+- **GroupName** - Name of the group
 - **GroupFri** - FRI of the group
 - **OwnerFri** - FRI of the owner
 - **AvailableAssignments** - List of available assignement FRIs associated to the group
@@ -160,7 +160,7 @@ delete_group(GroupFri='string')
 Update group attributes. 
 
 An error will be returned under the following conditions:
-1. A group does not exist
+1. The group does not exist
 2. The caller does not have necessary permissions to update group attributes
 4. The group name does not meet the nameing requirements
 
@@ -186,7 +186,7 @@ update_group_attributes(GroupFri='string', GroupName='string',
 - **GroupFri** - FRI of the group
 
 ### Update Group Owner
-Updates the group owner. When the owner is changed, an FSETGrp Admin assignment is automatically added for the new owner. The old owner will retain the FSETGrp Admin assignment until it is explicitly removed.
+Updates the group owner. When the owner is changed, an FSETGrp Admin assignment is automatically added for the new owner. The previous owner will retain the FSETGrp Admin assignment until it is explicitly removed.
 
 An error will be returned under the following conditions:
 1. The group does not exist
@@ -256,14 +256,14 @@ add_assignment(GroupFri='string', AssignmentFri='string', TemplateFri='string')
 
 
 ### Remove Assignment from a Group
-Remove an assignment from the group.
+Remove an assignment from the group. Before an Assignment can be removed all users associated to the Assignement must be disassociated.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to update the assignments
+2. The caller does not have necessary permissions to remove the assignment
 3. Assignment is not in the group
-4. Assignment can not be removed from the group. This mainly applies to the FSETGrp Admin rule
-5. Assignments exist using the rule
+4. Assignment can not be removed from the group. This mainly applies to the FSETGrp Admin assignments. There must always be a FSETGrp Admin assigned.
+5. Assignment is associated to one or more users.
 
 ```
 remove_assignment(GroupFri='string', AssignmentFri='string')
@@ -295,8 +295,8 @@ Create an Assignment Template that can later be used to add rules to a group in 
 An error will be returned under the following conditions:
 1. The template already exists
 2. The caller does not have necessary permissions to create templates
-3. Invalid rule specified
-4. Mixed Jurisdiction not allowed
+3. Invalid assignment specified
+4. Mixed Jurisdiction assignments not allowed
 
 ```
 create_assignment_template(TemplateName='string', TemplateDescription ='string', Assignments=['string'])
