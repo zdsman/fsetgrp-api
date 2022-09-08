@@ -67,7 +67,7 @@ create_group(GroupName='string', GroupDescription='string', OwnerFrn='string')
 List all groups.
 
 An error will be returned under the following conditions:
-1. The caller does not have necessary permissions to create groups
+1. The caller does not have necessary permissions to list groups
 
 ```
 list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
@@ -102,7 +102,7 @@ An error will be returned under the following conditions:
 2. The group does not exist
 
 ```
-list_groups(GroupFrn='string')
+describe_group(GroupFrn='string')
 ```
 #### Parameters
 - **GroupFrn** - FRN of the group to be described.
@@ -141,8 +141,8 @@ list_groups(GroupFrn='string')
 Deletes an existing group. 
 
 An error will be returned under the following conditions:
-1. The group does not exists
-2. The caller does not have permission to delete the group. Only a Group Admin has permissions to delete a group.
+1. The group does not exist
+2. The caller does not have permission to delete the group. Only a Group Owner has permissions to delete a group.
 3. Group has active assignements that require deleting first.
 
 ```
@@ -222,12 +222,13 @@ If a template is specified, only the individual assignments contained in the tem
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller does not have necessary permissions to update the owner
+2. The caller does not have necessary permissions to add assignments
 3. Invalid assignment due to mixed Jurisdictions
-4. Invalid template
-5. Unknown rule
-6. Assignment already exists
-7. Maximum number of rules exceeded
+4. Invalid assignment due to Organization Jurisdiction restriction. Assignment with Organization jurisdiction can only be in one group.
+5. Invalid template
+6. Unknown assignment
+7. Assignment already exists
+
 
 ```
 add_assignment(GroupFrn='string', AssignmentFrn='string', TemplateFrn='string')
@@ -298,7 +299,7 @@ An error will be returned under the following conditions:
 4. Mixed Jurisdiction not allowed
 
 ```
-create_template(TemplateName='string', TemplateDescription ='string', Assignments=['string'])
+create_assignment_template(TemplateName='string', TemplateDescription ='string', Assignments=['string'])
 ```
 #### Parameters
 - **TemplateName** - Arbitrary name of the new template.
