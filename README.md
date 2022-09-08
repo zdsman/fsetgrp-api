@@ -19,8 +19,8 @@
 - **uri** - 
 
 ----
-## FSET Resource Names
-The following FSET Resource Names (FRN) are used by this service:
+## FSET Resource Identifiers
+The following FSET Resource Identifier (FRI) are used by this service:
 - `fset:grp:group:<groupId>` -  FSET Group   
 - `fset:grp:template:<templateId>` - FSET Template   
 - `fset:grp:assignment:<classification>:<persona>:<scope>:<jurisdiction>:<function>` - FSET Assignment 
@@ -41,26 +41,26 @@ An error will be returned under the following conditions:
 4. The group name does not meet the nameing requirements
 
 ```
-create_group(GroupName='string', GroupDescription='string', OwnerFrn='string')
+create_group(GroupName='string', GroupDescription='string', OwnerFri='string')
 ```
 #### Parameters
 - **GroupName** - Name of the group. This must consist of `[a-zA-Z][a-zA-Z0-9]{3,}`
 - **GroupDescription** (optional) - Arbitrary description.
-- **OwnerFrn** - User FRN to be the group owner.
+- **OwnerFri** - User FRI to be the group owner.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
-    'GroupFrn' : 'string',
-    'OwnerFrn' : 'string'
+    'GroupFri' : 'string',
+    'OwnerFri' : 'string'
     }
 }
 ```
 #### Details
 - **GroupName** (string) - Name of the group
-- **GroupFrn** (string) - Group FRN
-- **OwnerFrn** - (string) - User FRN of the group owner
+- **GroupFri** (string) - Group FRI
+- **OwnerFri** - (string) - User FRI of the group owner
 
 
 ### List Groups
@@ -75,24 +75,24 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 
 #### Parameters
 - **Filters** (optional) - One or more filters
-  - `Owner` - The FRN of an owner to filter the results
-  - `Assignments` - The FRN of one or more assignments to filter
-  - `Users` - The FRN of one or more users
+  - `Owner` - The FRI of an owner to filter the results
+  - `Assignments` - The FRI of one or more assignments to filter
+  - `Users` - The FRI of one or more users
 
 #### Response
 ```
 {
     'Groups': {
-        'GroupFrn': 'string',
+        'GroupFri': 'string',
         'GroupName': 'string',
-        'OwnerFrn': 'string'
+        'OwnerFri': 'string'
     }
 }
 ```
 #### Details
 - **GroupName** - New name of the group
-- **GroupFrn** - FRN of the group
-- **OwnerFrn** - User FRN of the group owner
+- **GroupFri** - FRI of the group
+- **OwnerFri** - User FRI of the group owner
 
 ### Describe Group
 Get information about a single FSET Group.
@@ -102,17 +102,17 @@ An error will be returned under the following conditions:
 2. The group does not exist
 
 ```
-describe_group(GroupFrn='string')
+describe_group(GroupFri='string')
 ```
 #### Parameters
-- **GroupFrn** - FRN of the group to be described.
+- **GroupFri** - FRI of the group to be described.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
-    'GroupFrn' : 'string',
-    'OwnerFrn' : 'string',
+    'GroupFri' : 'string',
+    'OwnerFri' : 'string',
     'AvailableAssignments': [
         'string',
     ],
@@ -121,21 +121,21 @@ describe_group(GroupFrn='string')
     ],
     'UserAssignments': [
         {
-            'UserFrn': 'string',
-            'AssignmentFrns' : ['string',]
+            'UserFri': 'string',
+            'AssignmentFris' : ['string',]
         }
     ]
 }
 ```
 #### Details
 - **GroupName** - New name of the group
-- **GroupFrn** - FRN of the group
-- **OwnerFrn** - FRN of the owner
-- **AvailableAssignments** - List of available assignement FRNs associated to the group
-- **Blueprints** - List of Blueprint FRNs associated to the group
+- **GroupFri** - FRI of the group
+- **OwnerFri** - FRI of the owner
+- **AvailableAssignments** - List of available assignement FRIs associated to the group
+- **Blueprints** - List of Blueprint FRIs associated to the group
 - **UserAssignments** - List of all user assignments in the group
-  - **UserFrn** - FRN of the User
-  - **AssignmentFrns** - List of all assignment FRNs associated with the User
+  - **UserFri** - FRI of the User
+  - **AssignmentFris** - List of all assignment FRIs associated with the User
 
 ### Delete Group
 Deletes an existing group. 
@@ -146,10 +146,10 @@ An error will be returned under the following conditions:
 3. Group has active assignements that require deleting first.
 
 ```
-delete_group(GroupFrn='string')
+delete_group(GroupFri='string')
 ```
 #### Parameters
-- **GroupFrn** - FRN of the group to be deleted.
+- **GroupFri** - FRI of the group to be deleted.
 
 #### Response
 ```
@@ -165,11 +165,11 @@ An error will be returned under the following conditions:
 4. The group name does not meet the nameing requirements
 
 ```
-update_group_attributes(GroupFrn='string', GroupName='string',
+update_group_attributes(GroupFri='string', GroupName='string',
         GroupDescription='string')
 ```
 #### Parameters
-- **GroupFrn** - FRN of the group to be updated.
+- **GroupFri** - FRI of the group to be updated.
 - **GroupName** (optional) - Name of the group. This must consist of `[a-zA-Z]([a-zA-Z0-9])+`
 - **GroupDescription** (optional) - Arbitrary description.
 
@@ -177,13 +177,13 @@ update_group_attributes(GroupFrn='string', GroupName='string',
 ```
 { 'GroupAttributeInfo' : {
     'GroupName' : 'string',
-    'GroupFrn' : 'string'
+    'GroupFri' : 'string'
     }
 }
 ```
 #### Details
 - **GroupName** - New name of the group
-- **GroupFrn** - FRN of the group
+- **GroupFri** - FRI of the group
 
 ### Update Group Owner
 Updates the group owner. When the owner is changed, an FSETGrp Admin assignment is automatically added for the new owner. The old owner will retain the FSETGrp Admin assignment until it is explicitly removed.
@@ -194,25 +194,25 @@ An error will be returned under the following conditions:
 3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role.
 
 ```
-update_group_owner(GroupFrn='string', OwnerFrn='string')
+update_group_owner(GroupFri='string', OwnerFri='string')
 ```
 #### Parameters
-- **GroupFrn** - FRN of the group to be updated.
-- **OwnerFrn** - User FRN of the new group owner.
+- **GroupFri** - FRI of the group to be updated.
+- **OwnerFri** - User FRI of the new group owner.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
-    'GroupFrn' : 'string',
-    'OwnerFrn' : 'string'
+    'GroupFri' : 'string',
+    'OwnerFri' : 'string'
     }
 }
 ```
 #### Details
 - **GroupName** (string) - Name of the group
-- **GroupFrn** (string) - Group FRN
-- **OwnerFrn** - (string) - User FRN of the group owner
+- **GroupFri** (string) - Group FRI
+- **OwnerFri** - (string) - User FRI of the group owner
 
 
 ### Add Assignments to a Group
@@ -231,28 +231,28 @@ An error will be returned under the following conditions:
 
 
 ```
-add_assignment(GroupFrn='string', AssignmentFrn='string', TemplateFrn='string')
+add_assignment(GroupFri='string', AssignmentFri='string', TemplateFri='string')
 ```
 #### Parameters
-- **GroupFrn** - Id of the group to be updated.
-- **AssignmentFrn** (optional) - FRN of the rule being added to the group.
-- **TemplateFrn** (optional)- FRN of a template containing a set of assignments, all of which will be added. Duplicates will be silenty ignored.
+- **GroupFri** - Id of the group to be updated.
+- **AssignmentFri** (optional) - FRI of the rule being added to the group.
+- **TemplateFri** (optional)- FRI of a template containing a set of assignments, all of which will be added. Duplicates will be silenty ignored.
 
 #### Response
 ```
 { 'GroupRuleInfo' : {
     'GroupName' : 'string'
-    'GroupFRN' : 'string'
+    'GroupFRI' : 'string'
     'Assignments' : [
-        {'AssignmentFrn' : 'string'}
+        {'AssignmentFri' : 'string'}
     ]
 }
 ```
 #### Details
 - **GroupName** - Name of the group
-- **GroupFrn** - FRN of the group
+- **GroupFri** - FRI of the group
 - **Assignments** - List of assignements assocated to the group
-- **AssignmentFrn** - FRN of an assignment
+- **AssignmentFri** - FRI of an assignment
 
 
 ### Remove Assignment from a Group
@@ -266,28 +266,28 @@ An error will be returned under the following conditions:
 5. Assignments exist using the rule
 
 ```
-remove_assignment(GroupFrn='string', AssignmentFrn='string')
+remove_assignment(GroupFri='string', AssignmentFri='string')
 ```
 #### Parameters
-- **GroupFrn** - FRN of the group to be updated.
-- **AssignmentFrn** - FRN of an assignment
+- **GroupFri** - FRI of the group to be updated.
+- **AssignmentFri** - FRI of an assignment
 
 #### Response
 ```
 { 'GroupTemplateInfo' : {
     'GroupName' : 'string'
-    'GroupFrn' : 'string'
+    'GroupFri' : 'string'
     'Assignments' : [
-        {'AssignmentFrn' : 'string'}
+        {'AssignmentFri' : 'string'}
         ]
     }
 }
 ```
 #### Details
 - **GroupName** - Name of the group
-- **GroupFrn** - FRN of the group
+- **GroupFri** - FRI of the group
 - **Assignments** - List of remaining assignments assocated to the group
-- **AssignmentFrn** - FRN of an assignment
+- **AssignmentFri** - FRI of an assignment
 
 ### Create Assignment Template
 Create an Assignment Template that can later be used to add rules to a group in an efficient manner.
@@ -304,14 +304,14 @@ create_assignment_template(TemplateName='string', TemplateDescription ='string',
 #### Parameters
 - **TemplateName** - Arbitrary name of the new template.
 - **TemplateDescription** (optional) - Arbitrary description of the template
-- **Assignments** - List of individual assignment FRNs.
+- **Assignments** - List of individual assignment FRIs.
 
 #### Response
 ```
 { 'TemplateInfo' : {
     'TemplateName' : 'string',
     'Assignments' : [
-        {'AssignmentFrn' : 'string'}
+        {'AssignmentFri' : 'string'}
         ]
     }
 }
@@ -319,7 +319,7 @@ create_assignment_template(TemplateName='string', TemplateDescription ='string',
 #### Details
 - **TemplateName** - Name of the template
 - **Assignments** - List of assignments in the template
-- **AssignmentFrn** - FRN of a rule
+- **AssignmentFri** - FRI of a rule
 
 ### Delete Assignment Template
 Delete an Assignment Template.
@@ -329,10 +329,10 @@ An error will be returned under the following conditions:
 2. The caller does not have necessary permissions to delete templates
 
 ```
-delete_assignment_template(TemplateFrn='string')
+delete_assignment_template(TemplateFri='string')
 ```
 #### Parameters
-- **TemplateFrn** - FRN of the template to be deleted.
+- **TemplateFri** - FRI of the template to be deleted.
 
 #### Response
 ```
@@ -353,7 +353,7 @@ list_assignment_templates()
 { 'Templates' : 
     [
         {
-            'TemplateFrn' : 'string',
+            'TemplateFri' : 'string',
             'TemplateName' : 'string',
             'TemplateDescription' : 'string'
         }
@@ -361,7 +361,7 @@ list_assignment_templates()
 }
 ```
 #### Details
-- **TemplateFrn** - FRN of the template
+- **TemplateFri** - FRI of the template
 - **TemplateName** - Name of the template
 - **TemplateDescription** - Description of the template
 
