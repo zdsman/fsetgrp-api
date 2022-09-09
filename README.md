@@ -488,8 +488,10 @@ Add a user to a group and associate the user to one or more assignments. The use
 
 An error will be returned under the following conditions:
 1. Invalid group specified
-2. The caller does not have an enabling assignment to add users
-3. One or more specified assignments are not present in the group
+2. Invalid user specified
+3. The caller does not have an enabling assignment to add users
+4. One or more specified assignments are not present in the group
+5. One or more specified assignments are invalid
 
 ```
 add_user_to_group(GroupFri='string', UserFri='string', Assignments=['string'])
