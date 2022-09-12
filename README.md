@@ -23,7 +23,7 @@
 The following FSET Resource Identifier (FRI) are used by this service:
 - `fset:grp:group:<groupId>` -  FSET Group   
 - `fset:grp:template:<templateId>` - FSET Template   
-- `fset:grp:assignment:<classification>:<persona>:<scope>:<jurisdiction>:<function>` - FSET Assignment 
+- `fset:grp:assignment:<user-type>:<role>:<environment>:<jurisdiction>:<level>` - FSET Assignment 
 - `fset:user:user:<userId>` - FSET User
 
 * * * 
@@ -41,19 +41,21 @@ An error will be returned under the following conditions:
 4. The group name does not meet the nameing requirements
 
 ```
-create_group(GroupName='string', GroupDescription='string', OwnerFri='string')
+create_group(GroupName='string', GroupDescription='string', OwnerFri='string', Jurisdiction='string')
 ```
 #### Parameters
 - **GroupName** - Name of the group. This must consist of `[a-zA-Z][a-zA-Z0-9]{3,}`
 - **GroupDescription** (optional) - Arbitrary description.
 - **OwnerFri** - User FRI to be the group owner.
+- **Jurisdiction** - Jurisdiction of group. Use `"Org"` for an organization. Don't specifiy for either group or self.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
     'GroupFri' : 'string',
-    'OwnerFri' : 'string'
+    'OwnerFri' : 'string',
+    'IsOrgJurisdiction' : boolean
     }
 }
 ```
@@ -61,6 +63,7 @@ create_group(GroupName='string', GroupDescription='string', OwnerFri='string')
 - **GroupName** (string) - Name of the group
 - **GroupFri** (string) - Group FRI
 - **OwnerFri** - (string) - User FRI of the group owner
+- **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 
 ### List Groups
@@ -85,7 +88,8 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
     'Groups': {
         'GroupFri': 'string',
         'GroupName': 'string',
-        'OwnerFri': 'string'
+        'OwnerFri': 'string',
+        'IsOrgJurisdiction' : boolean
     }
 }
 ```
@@ -93,6 +97,8 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 - **GroupName** - New name of the group
 - **GroupFri** - FRI of the group
 - **OwnerFri** - User FRI of the group owner
+- - **OwnerFri** - (string) - User FRI of the group owner
+- **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
 - `fset:grp:assignment:*:architect:*:o-*:observer`
@@ -140,6 +146,7 @@ describe_group(GroupFri='string')
     'GroupName' : 'string',
     'GroupFri' : 'string',
     'OwnerFri' : 'string',
+    'IsOrgJurisdictions' : boolean,
     'AvailableAssignments': [
         'string',
     ],
@@ -158,6 +165,7 @@ describe_group(GroupFri='string')
 - **GroupName** - Name of the group
 - **GroupFri** - FRI of the group
 - **OwnerFri** - FRI of the owner
+- **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 - **AvailableAssignments** - List of available assignement FRIs associated to the group
 - **Blueprints** - List of Blueprint FRIs associated to the group
 - **UserAssignments** - List of all user assignments in the group
