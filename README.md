@@ -69,7 +69,7 @@ create_group(GroupName='string', GroupDescription='string', Owner='string', Juri
 
 
 ### List Groups
-List all groups. If the caller has an assignment in a group, the results will always include those groups regardless of their assignments. Otherwise, an enabling assignment is necessary.
+List all groups. If the caller is a member of a group, the results will always include those groups regardless of their assignments. Otherwise, an enabling assignment is necessary.
 
 An error will be returned under the following conditions:
 1. The caller does not have an enabling assignment to list groups AND has no assignments in any group.
@@ -102,30 +102,9 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:architect:*:o-*:observer`
-- `fset:grp:assignment:*:architect:*:g-<groupId>:observer`
-- `fset:grp:assignment:*:bi-admin:*:o-*:limitedObserver`
-- `fset:grp:assignment:*:dba-manager:*:o-*:expertContributor`
-- `fset:grp:assignment:*:dba:*:o-*:expertContributor`
-- `fset:grp:assignment:*:db-manager:*:g-<groupId>:expertContributor`
-- `fset:grp:assignment:*:data-engineer:*:g-<groupId>:expertContributor`
-- `fset:grp:assignment:*:dl-admin:*:g-<groupId>:expertContributor`
-- `fset:grp:assignment:*:data-scientist:*:g-<groupId>:observer`
-- `fset:grp:assignment:*:developer:*:[s]g-<groupId>:*`
-- `fset:grp:assignment:*:expense-manager:*:o-*>:observer`
-- `fset:grp:assignment:*:experience-manager:*:g-<groupId>:*Observer`
-- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
-- `fset:grp:assignment:*:fset-group-admin:*:o-*>:*`
-- `fset:grp:assignment:*:operator:*:[s]g-<groupId>:operations`
-- `fset:grp:assignment:*:operator:*:[s]g-<groupId>:*Observer`
-- `fset:grp:assignment:*:perf-test-admin:*:o-*:Observer`
-- `fset:grp:assignment:*:platform-sys-admin:*:o-*:expertContributor`
-- `fset:grp:assignment:*:product-account-owner:*:o-*:expertContributor` - look bogus jurisdiction
-- `fset:grp:assignment:*:program-manager:*:o-*:*Observer`
-- `fset:grp:assignment:*:program-manager:*:o-*:*Observer`
-- `fset:grp:assignment:*:security-admin:*:o-*:limitedObserver`
-- `fset:grp:assignment:*:site-reliability-engineer:*:o-*:operations`
-- `fset:grp:assignment:*:user-account-admin:*:o-*:expertContributor`
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 
 ### Describe Group
@@ -156,7 +135,7 @@ describe_group(GroupFri='string')
     ],
     'UserAssignments': [
         {
-            'UserFri': 'string',
+            'UserId': 'string',
             'AssignmentFris' : ['string',]
         }
     ]
@@ -170,18 +149,20 @@ describe_group(GroupFri='string')
 - **AvailableAssignments** - List of available assignement FRIs associated to the group
 - **Blueprints** - List of Blueprint FRIs associated to the group
 - **UserAssignments** - List of all user assignments in the group
-  - **UserFri** - FRI of the User
+  - **UserId** - FRI of the User
   - **AssignmentFris** - List of all assignment FRIs associated with the User
 
 #### Enabling Assignments
-Same as `list_groups`
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 ### Delete Group
 Deletes an existing group. 
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller is not the owner of the group. Only a group owner can delete a group.
+2. The caller is not the owner of the group AND has no enabling assignements. A group owner can delete a group without any addition assignments.
 3. Group has active assignements and/or associated resources that require deleting first.
 
 ```
@@ -194,6 +175,10 @@ delete_group(GroupFri='string')
 ```
 { }
 ```
+
+#### Enabling Assignments
+- `fset:grp:assignment:*:fset-group-admin:*:o-*>:*`
+
 
 ### Update Group Attributes
 Update group attributes. 
@@ -225,7 +210,9 @@ update_group_attributes(GroupFri='string', GroupName='string',
 - **GroupFri** - FRI of the group
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 ### Update Group Owner
 Updates the group owner. When the owner is changed, an FSETGrp Admin assignment is automatically added for the new owner. The previous owner will retain the FSETGrp Admin assignment until it is explicitly removed.
@@ -257,12 +244,12 @@ update_group_owner(GroupFri='string', Owner='string')
 - **Owner** - (string) - User ID of the group owner
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+- `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 ### Add Assignments to a Group
-Adds an assignment or set of assignments to the group. The assignments can then be used to make assignments to a user at a later time. If neither an assignment or template is specified, the operation silently does nothing.
+Adds an assignment or set of assignments to the group. Once a group has a set of assignements, a member of the group can be granted an assignment. If neither an assignment or template is specified, the operation silently does nothing. If a duplicate assignment is being added the operation silently does nothing.
 
-If a template is specified, only the individual assignments contained in the template will be persisted on the group.
+If a template is specified, only the individual assignments contained in the template will be persisted on the group but not the template.
 
 An error will be returned under the following conditions:
 1. The group does not exist
@@ -271,7 +258,6 @@ An error will be returned under the following conditions:
 4. Invalid assignment due to Organization Jurisdiction restriction. Assignment with Organization jurisdiction can only be in one group.
 5. Invalid template
 6. Unknown assignment
-7. Assignment already exists
 
 
 ```
@@ -299,8 +285,9 @@ add_assignment(GroupFri='string', AssignmentFri='string', TemplateFri='string')
 - **AssignmentFri** - FRI of an assignment
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
-- `fset:grp:assignment:*:fset-group-assignment-admin:*:g-<groupId>:*`
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
 
 ### Remove Assignment from a Group
 Remove an assignment from the group. Before an Assignment can be removed all users associated to the Assignement must be disassociated.
@@ -337,8 +324,9 @@ remove_assignment(GroupFri='string', AssignmentFri='string')
 - **AssignmentFri** - FRI of an assignment
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
-- `fset:grp:assignment:*:fset-group-assignment-admin:*:g-<groupId>:*`
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
 
 ### Create Assignment Template
 Create an Assignment Template that can later be used to add rules to a group in an efficient manner.
@@ -375,8 +363,11 @@ create_assignment_template(TemplateName='string', TemplateDescription ='string',
 - **AssignmentFri** - FRI of a rule
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-*:*`
-- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` Required if a group was specified.
+- AND
+  - OR
+    - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+    - `fset:grp:assignment:*:fset-group-admin:*:g-*:*`
+- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` Only if a group was specified.
   
 
 ### Delete Assignment Template
@@ -397,8 +388,8 @@ delete_assignment_template(TemplateFri='string')
 { }
 ```
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-*:*`
-
+- `fset:grp:assignment:*:fset-group-admin:*:*:*`
+- 
 ### List Assignment Templates
 List all Templates.
 
@@ -426,7 +417,7 @@ list_assignment_templates()
 - **TemplateDescription** - Description of the template
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:g-*:*` 
+- `fset:grp:assignment:*:fset-group-admin:*:*:*` 
 
 
 ### Add Blueprint to a Group
@@ -462,13 +453,16 @@ add_blueprint_to_group(GroupFri='string', Blueprint='string')
 - **GroupFri** (string) - Group FRI
 - **Blueprint** - (string) - Name of the Blueprint added
 
+#### Enabling Assignments
+- `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` 
+
 ### Add AWS Full-Product Account to a Group
 Adds an AWS full-product account to the group. A full-product account can be added to more than one FSETGrp.
 
 An error will be returned under the following conditions:
 1. The Group does not exist
 2. The Full-Product account does not exist
-3. The Caller does not have the enabling assignments to add product accounts to the group. Please notice that both assignments listed in the `Required Assignments` section are required to enable this API.
+3. The Caller does not have the enabling assignments to add product accounts to the group.
 
 ```
 add_product_account_to_group(GroupFri='string', ProductAccount='string')
@@ -492,10 +486,9 @@ add_product_account_to_group(GroupFri='string', ProductAccount='string')
 - **AccountId** - (string) - 12-digit AWS AccountId of the added account.
 
 #### Required Assignments
-Both of the following assignments are required:
-- `fset:grp:assignment:*:fset-group-resource-admin:*:g-<groupId>:*` - Does not exist in Access Maps
-- `fset:grp:assignment:*:product-account-owner:*:o-*:ExpertContributor`- May need a new level for this.
-
+- AND
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` 
+  - `fset:grp:assignment:*:product-account-owner:*:o-*:ExpertContributor`- May need a new level for this.
 
 
 ### List Resources in a Group
@@ -540,6 +533,12 @@ list_resources(GroupFri='string')
 - **ProductAccounts** - List of the full product accounts
   - **AccountId** - The 12-digit AWS account id
 
+#### Enabling Assignments
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+  - `fset:grp:assignment:*:product-account-owner:*:o-*:*`
+
 
 ### Remove a Blueprint from a Group
 Remove a Blueprint from the group. 
@@ -566,14 +565,19 @@ remove_blueprint_from_group(GroupFri='string', Blueprint='string')
 #### Details
 No response details
 
+#### Enabling Assignments
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*` 
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` 
+
+
 ### Remove an AWS Full-Product Account from a Group
 Removes an AWS full-product account from the group. A full-product account must be associated to at least one full-product account.
 
 An error will be returned under the following conditions:
 1. The Group does not exist
 2. The Full-Product is not associated to the group
-3. The Full-Product account can't be removed without being orphaned (not assoicated to another account).
-4. The Caller does not have the enabling assignments to remove product accounts from the group. Please notice that both assignments listed in the `Required Assignments` section are required to enable this API.
+3. The Caller does not have the enabling assignments to remove product accounts from the group. Please notice that both assignments listed in the `Required Assignments` section are required to enable this API.
 
 ```
 remove_product_account_to_group(GroupFri='string', ProductAccount='string')
@@ -588,34 +592,36 @@ remove_product_account_to_group(GroupFri='string', ProductAccount='string')
 ```
 No result details
 
-#### Required Assignments
-Both of the following assignments are required:
-- `fset:grp:assignment:*:fset-group-resource-admin:*:g-<groupId>:*` - Does not exist in Access Maps
-- `fset:grp:assignment:*:product-account-owner:*:o-*:ExpertContributor` - May need a new level for this.
-
+#### Enabling Assignments
+- AND
+  - OR
+    - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+    - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+  - `fset:grp:assignment:*:product-account-owner:*:o-*:ExpertContributor` - May need a new level for this.
 
 ### Add User to a Group
-Add a user to a group and associate the user to one or more assignments. The user may already be part of the group in which case only assignmens will be added. Assignments are idempotent and will be regenerated in the FSETGrp IDP.
+Add a user to a group and granting the user to one or more assignments. The user may already be part of the group in which case only assignmens will be added. Assignments are idempotent.
+
+Granting a user an assignment does not guarentee the permission are approved.
 
 An error will be returned under the following conditions:
 1. Invalid group specified
 2. Invalid user specified
 3. The caller does not have an enabling assignment to add users
 4. One or more specified assignments are not present in the group
-5. One or more specified assignments are invalid
 
 ```
-add_user_to_group(GroupFri='string', UserFri='string', Assignments=['string'])
+add_user_to_group(GroupFri='string', UserId='string', Assignments=['string'])
 ```
 #### Parameters
 - **GroupFri** - FRI of the group to which the user will be added
-- **UserFri** - FRI of the user being added
+- **UserId** - Id of the user being added
 - **Assignments** - List of individual assignment FRIs.
 
 #### Response
 ```
 { 'UserAssignmentInfo' : {
-    'UserFri' : 'string',
+    'UserId' : 'string',
     'GroupFri' : 'string',
     'GroupName' : 'string',
     'Assignments' : [
@@ -625,28 +631,55 @@ add_user_to_group(GroupFri='string', UserFri='string', Assignments=['string'])
 }
 ```
 #### Details
-- **UserFri** - FRI of the user
+- **UserId** - Id of the user
 - **GroupFri** - FRI of the group
 - **GroupName** - Group name
 - **Assignments** - List of assignments associated to the user
   - **AssignmentFri** - Assignement FRI
 
+#### Enabling Assignments
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*` 
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` 
 
-{ 
-    'Resources' : {
-        'GroupName' : 'string',
-        'GroupFri' : 'string',
-        'UrlRepos' : [
-            {
-                'RepoUrl' : 'string',
-                'BlueprintName' : 'string'
-            }
-        ],
-        'ArnRepos' : [
-            {
-                'RepoArn' : 'string',
-                'BlueprintName' : 'string'
-            }
+### Add User Assignment
+Request one or more assignments be granted to a user.
+
+The assignment provisioning is asyncrounous and may be denied. In this case, the API return successfully without any indication of the provisioning process.
+
+An error will be returned under the following conditions:
+1. Invalid group specified
+2. Invalid user specified
+3. One or more specified assignments are not present in the group
+
+```
+request_assignment(GroupFri='string', UserId='string', Assignments=['string'])
+```
+#### Parameters
+- **GroupFri** - FRI of the group to which the user will be added
+- **UserId** - Id of the user being added
+- **Assignments** - List of individual assignment FRIs.
+
+#### Response
+```
+{ 'UserAssignmentInfo' : {
+    'UserId' : 'string',
+    'GroupFri' : 'string',
+    'GroupName' : 'string',
+    'Assignments' : [
+        {'AssignmentFri' : 'string'}
         ]
     }
 }
+```
+#### Details
+- **UserId** - Id of the user
+- **GroupFri** - FRI of the group
+- **GroupName** - Group name
+- **Assignments** - List of assignments associated to the user
+  - **AssignmentFri** - Assignement FRI
+
+#### Enabling Assignments
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*` 
+  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*` 
