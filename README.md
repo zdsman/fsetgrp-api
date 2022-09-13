@@ -24,7 +24,6 @@ The following FSET Resource Identifier (FRI) are used by this service:
 - `fset:grp:group:<groupId>` -  FSET Group   
 - `fset:grp:template:<templateId>` - FSET Template   
 - `fset:grp:assignment:<user-type>:<role>:<environment>:<jurisdiction>:<level>` - FSET Assignment 
-- `fset:user:user:<userId>` - FSET User
 
 * * * 
 
@@ -41,12 +40,12 @@ An error will be returned under the following conditions:
 4. The group name does not meet the nameing requirements
 
 ```
-create_group(GroupName='string', GroupDescription='string', OwnerFri='string', Jurisdiction='string')
+create_group(GroupName='string', GroupDescription='string', Owner='string', Jurisdiction='string')
 ```
 #### Parameters
 - **GroupName** - Name of the group. This must consist of `[a-zA-Z][a-zA-Z0-9]{3,}`
 - **GroupDescription** (optional) - Arbitrary description.
-- **OwnerFri** - User FRI to be the group owner.
+- **Owner** - User ID to be the group owner.
 - **Jurisdiction** - Jurisdiction of group. Use `"Org"` for an organization. Don't specifiy for either group or self.
 
 #### Response
@@ -54,7 +53,7 @@ create_group(GroupName='string', GroupDescription='string', OwnerFri='string', J
 { 'GroupInfo' : {
     'GroupName' : 'string',
     'GroupFri' : 'string',
-    'OwnerFri' : 'string',
+    'Owner' : 'string',
     'IsOrgJurisdiction' : boolean
     }
 }
@@ -62,7 +61,7 @@ create_group(GroupName='string', GroupDescription='string', OwnerFri='string', J
 #### Details
 - **GroupName** (string) - Name of the group
 - **GroupFri** (string) - Group FRI
-- **OwnerFri** - (string) - User FRI of the group owner
+- **Owner** - (string) - User ID of the group owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
@@ -81,7 +80,7 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 
 #### Parameters
 - **Filters** (optional) - One or more filters
-  - `Owner` - The FRI of an owner to filter the results
+  - `Owner` - The ID of an owner to filter the results
   - `Assignments` - The FRI of one or more assignments to filter
   - `Users` - The FRI of one or more users
 
@@ -91,7 +90,7 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
     'Groups': {
         'GroupFri': 'string',
         'GroupName': 'string',
-        'OwnerFri': 'string',
+        'Owner': 'string',
         'IsOrgJurisdiction' : boolean
     }
 }
@@ -99,8 +98,7 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 #### Details
 - **GroupName** - New name of the group
 - **GroupFri** - FRI of the group
-- **OwnerFri** - User FRI of the group owner
-- - **OwnerFri** - (string) - User FRI of the group owner
+- **Owner** - User ID of the group owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
@@ -148,7 +146,7 @@ describe_group(GroupFri='string')
 { 'GroupInfo' : {
     'GroupName' : 'string',
     'GroupFri' : 'string',
-    'OwnerFri' : 'string',
+    'Owner' : 'string',
     'IsOrgJurisdictions' : boolean,
     'AvailableAssignments': [
         'string',
@@ -167,7 +165,7 @@ describe_group(GroupFri='string')
 #### Details
 - **GroupName** - Name of the group
 - **GroupFri** - FRI of the group
-- **OwnerFri** - FRI of the owner
+- **Owner** - FRI of the owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 - **AvailableAssignments** - List of available assignement FRIs associated to the group
 - **Blueprints** - List of Blueprint FRIs associated to the group
@@ -238,25 +236,25 @@ An error will be returned under the following conditions:
 3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role.
 
 ```
-update_group_owner(GroupFri='string', OwnerFri='string')
+update_group_owner(GroupFri='string', Owner='string')
 ```
 #### Parameters
 - **GroupFri** - FRI of the group to be updated.
-- **OwnerFri** - User FRI of the new group owner.
+- **Owner** - User ID of the new group owner.
 
 #### Response
 ```
 { 'GroupInfo' : {
     'GroupName' : 'string',
     'GroupFri' : 'string',
-    'OwnerFri' : 'string'
+    'Owner' : 'string'
     }
 }
 ```
 #### Details
 - **GroupName** (string) - Name of the group
 - **GroupFri** (string) - Group FRI
-- **OwnerFri** - (string) - User FRI of the group owner
+- **Owner** - (string) - User ID of the group owner
 
 #### Enabling Assignments
 - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
@@ -597,7 +595,7 @@ Both of the following assignments are required:
 
 
 ### Add User to a Group
-Add a user to a group and associate the user to one or more assignments. The user may already be part of the group in which case only assignmens will be added. Duplicate assignments will be silently ignored.
+Add a user to a group and associate the user to one or more assignments. The user may already be part of the group in which case only assignmens will be added. Assignments are idempotent and will be regenerated in the FSETGrp IDP.
 
 An error will be returned under the following conditions:
 1. Invalid group specified
