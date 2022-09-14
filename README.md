@@ -35,8 +35,8 @@ Creates a new group. When a new group is created, an FSETGrp Admin assignement i
 
 An error will be returned under the following conditions:
 1. A group already exists with the same name
-2. The caller does not have necessary permissions to create groups
-3. An invalid group owner specified. Likely due to non-existent user or wrong Organizational Role for the implied FSETGrp Admin assignement.
+2. The caller does not have necessary permissions to create Organization groups
+3. The caller does not have the organizational role of Development Manager to create "G" groups.
 4. The group name does not meet the nameing requirements
 
 ```
@@ -66,14 +66,14 @@ create_group(GroupName='string', GroupDescription='string', Owner='string', Juri
 
 #### Enabling Assignments
 - OR
-  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*` - This only applies when creating a "O" group.
 
 
 ### List Groups
-List all groups. If the caller is a member of a group, the results will always include those groups regardless of their assignments. Otherwise, an enabling assignment is necessary.
+List all groups. If the caller is of user-type "Vendor", the only groups returned will be those who the caller is a member of.
 
 An error will be returned under the following conditions:
-1. The caller does not have an enabling assignment to list groups AND has no assignments in any group.
+No Error will be manifest. However, the response may be empty.
 
 ```
 list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
@@ -81,19 +81,23 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 
 #### Parameters
 - **Filters** (optional) - One or more filters
+  - `GroupName` - An expression allowing wildcard ('*') and single character ('?') anywhere in the string to filter the results
+  - `Description` - An expression allowing wildcard ('*') and single character ('?') anywhere in the string to filter the results
   - `Owner` - The ID of an owner to filter the results
   - `Assignments` - The FRI of one or more assignments to filter
-  - `Users` - The FRI of one or more users
+  - `Users` - The ID of one or more users
 
 #### Response
 ```
 {
-    'Groups': {
-        'GroupFri': 'string',
-        'GroupName': 'string',
-        'Owner': 'string',
-        'IsOrgJurisdiction' : boolean
-    }
+    'Groups': [
+        {
+            'GroupFri': 'string',
+            'GroupName': 'string',
+            'Owner': 'string',
+            'IsOrgJurisdiction' : boolean
+        }
+    ]
 }
 ```
 #### Details
@@ -103,16 +107,14 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
-- OR
-  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
-  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+No Assignments needed.
 
 
 ### Describe Group
 Get information about a single FSET Group.
 
 An error will be returned under the following conditions:
-1. The caller does not have necessary permissions to describe groups
+1. The caller's Organizational Role doesn't allow getting details for the group specified. Typical for vendors try to get info about a group they are not a member of.
 2. The group does not exist
 
 ```
@@ -134,6 +136,9 @@ describe_group(GroupFri='string')
     'Blueprints': [
         'string',
     ],
+    'FullProductAccounts': [
+        'string',
+    ],
     'UserAssignments': [
         {
             'UserId': 'string',
@@ -145,25 +150,24 @@ describe_group(GroupFri='string')
 #### Details
 - **GroupName** - Name of the group
 - **GroupFri** - FRI of the group
-- **Owner** - FRI of the owner
+- **Owner** - User ID of the owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 - **AvailableAssignments** - List of available assignement FRIs associated to the group
 - **Blueprints** - List of Blueprint FRIs associated to the group
+- **FullProductAccounts** - List of all Full-Product accounts assoicated with the group
 - **UserAssignments** - List of all user assignments in the group
-  - **UserId** - FRI of the User
+  - **UserId** - ID of the User
   - **AssignmentFris** - List of all assignment FRIs associated with the User
 
 #### Enabling Assignments
-- OR
-  - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
-  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+No enabling assignments needed.
 
 ### Delete Group
-Deletes an existing group. 
+Deletes an existing group.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller is not the owner of the group AND has no enabling assignements. A group owner can delete a group without any addition assignments.
+2. The caller is not the owner of the group AND has no enabling assignements. A group owner can delete a group without any assignments.
 3. Group has active assignements and/or associated resources that require deleting first.
 
 ```
@@ -178,11 +182,11 @@ delete_group(GroupFri='string')
 ```
 
 #### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:o-*>:*`
+- `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 
 ### Update Group Attributes
-Update group attributes. 
+Update group attributes. If neither the GroupName or GroupDescription is specified, no error os manifest.
 
 An error will be returned under the following conditions:
 1. The group does not exist
@@ -202,12 +206,14 @@ update_group_attributes(GroupFri='string', GroupName='string',
 ```
 { 'GroupAttributeInfo' : {
     'GroupName' : 'string',
+    'GroupDescription' : 'string',
     'GroupFri' : 'string'
     }
 }
 ```
 #### Details
 - **GroupName** - New name of the group
+- **Description** - The new description
 - **GroupFri** - FRI of the group
 
 #### Enabling Assignments
@@ -221,7 +227,7 @@ Updates the group owner. When the owner is changed, an FSETGrp Admin assignment 
 An error will be returned under the following conditions:
 1. The group does not exist
 2. The caller does not have an enabling assignment to update the owner
-3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role.
+3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role (For "G" groups the new owner must be a Development Manager).
 
 ```
 update_group_owner(GroupFri='string', Owner='string')
@@ -242,7 +248,7 @@ update_group_owner(GroupFri='string', Owner='string')
 #### Details
 - **GroupName** (string) - Name of the group
 - **GroupFri** (string) - Group FRI
-- **Owner** - (string) - User ID of the group owner
+- **Owner** - (string) - User ID of the new group owner
 
 #### Enabling Assignments
 - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
