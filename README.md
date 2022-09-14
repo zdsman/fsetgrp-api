@@ -65,7 +65,8 @@ create_group(GroupName='string', GroupDescription='string', Owner='string', Juri
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
-- NONE REQUIRED
+- OR
+  - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 
 ### List Groups
@@ -287,7 +288,9 @@ add_assignment(GroupFri='string', AssignmentFri='string', TemplateFri='string')
 #### Enabling Assignments
 - OR
   - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
+  - `fset:grp:assignment:*:fset-group-resource-admin:*:o-*:*`
   - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
+  - `fset:grp:assignment:*:fset-group-resource-admin:*:g-<groupId>:*`
 
 ### Remove Assignment from a Group
 Remove an assignment from the group. Before an Assignment can be removed all users associated to the Assignement must be disassociated.
