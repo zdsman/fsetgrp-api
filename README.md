@@ -31,7 +31,7 @@ The following FSET Resource Identifier (FRI) are used by this service:
 From here down are all the api calls for the service.
 
 ### Create Group
-Creates a new group. When a new group is created, an FSETGrp Admin assignement is automatically added to the group for the caller. Additional FSETGrp Admin assignments may be added at a later time. The caller is the sole owner of the group (independent of the group administator).
+Creates a new group. When a new group is created, an FSETGrp Admin assignement is automatically added to the group for the caller. Additional FSETGrp Admin assignments may be added at a later time.
 
 An error will be returned under the following conditions:
 1. A group already exists with the same name
@@ -39,12 +39,11 @@ An error will be returned under the following conditions:
 3. The group name does not meet the nameing requirements
 
 ```
-create_group(GroupName='string', GroupDescription='string', Owner='string', Jurisdiction='string')
+create_group(GroupName='string', GroupDescription='string', Jurisdiction='string')
 ```
 #### Parameters
 - **GroupName** - Name of the group. This must consist of `[a-zA-Z][a-zA-Z0-9]{3,}`
 - **GroupDescription** (optional) - Arbitrary description.
-- **Owner** - User ID to be the group owner.
 - **Jurisdiction** - Jurisdiction of group. Use `"Org"` for an organization. Don't specifiy for either group or self.
 
 #### Response
@@ -52,7 +51,6 @@ create_group(GroupName='string', GroupDescription='string', Owner='string', Juri
 { 'GroupInfo' : {
     'GroupName' : 'string',
     'GroupFri' : 'string',
-    'Owner' : 'string',
     'IsOrgJurisdiction' : boolean
     }
 }
@@ -60,7 +58,6 @@ create_group(GroupName='string', GroupDescription='string', Owner='string', Juri
 #### Details
 - **GroupName** (string) - Name of the group
 - **GroupFri** (string) - Group FRI
-- **Owner** - (string) - User ID of the group owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
@@ -83,7 +80,6 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 - **Filters** (optional) - One or more filters
   - `GroupName` - An expression allowing wildcard ('*') and single character ('?') anywhere in the string to filter the results
   - `Description` - An expression allowing wildcard ('*') and single character ('?') anywhere in the string to filter the results
-  - `Owner` - The ID of an owner to filter the results
   - `Assignments` - The FRI of one or more assignments to filter
   - `Users` - The ID of one or more users
 
@@ -94,7 +90,6 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
         {
             'GroupFri': 'string',
             'GroupName': 'string',
-            'Owner': 'string',
             'IsOrgJurisdiction' : boolean
         }
     ]
@@ -103,7 +98,6 @@ list_groups(Filters=[{'Name' : 'string', 'Values' : ['string']}])
 #### Details
 - **GroupName** - New name of the group
 - **GroupFri** - FRI of the group
-- **Owner** - User ID of the group owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 
 #### Enabling Assignments
@@ -128,7 +122,6 @@ describe_group(GroupFri='string')
 { 'GroupInfo' : {
     'GroupName' : 'string',
     'GroupFri' : 'string',
-    'Owner' : 'string',
     'IsOrgJurisdictions' : boolean,
     'AvailableAssignments': [
         'string',
@@ -150,7 +143,6 @@ describe_group(GroupFri='string')
 #### Details
 - **GroupName** - Name of the group
 - **GroupFri** - FRI of the group
-- **Owner** - User ID of the owner
 - **IsOrgJurisdiction** (boolean) - `True` if the group is restricted to Organization jurisdiction assignments, `False` otherwise.
 - **AvailableAssignments** - List of available assignement FRIs associated to the group
 - **Blueprints** - List of Blueprint FRIs associated to the group
@@ -167,8 +159,7 @@ Deletes an existing group.
 
 An error will be returned under the following conditions:
 1. The group does not exist
-2. The caller is not the owner of the group AND has no enabling assignements. A group owner can delete a group without any assignments.
-3. Group has active assignements and/or associated resources that require deleting first.
+2. Group has active assignements and/or associated resources that require deleting first.
 
 ```
 delete_group(GroupFri='string')
@@ -221,37 +212,6 @@ update_group_attributes(GroupFri='string', GroupName='string',
   - `fset:grp:assignment:*:fset-group-admin:*:g-<groupId>:*`
   - `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
-### Update Group Owner
-Updates the group owner. When the owner is changed, an FSETGrp Admin assignment is automatically added for the new owner. The previous owner will retain the FSETGrp Admin assignment until it is explicitly removed.
-
-An error will be returned under the following conditions:
-1. The group does not exist
-2. The caller does not have an enabling assignment to update the owner
-3. An invalid owner is specified. Likely due to non-existent user or wrong Organizational role (For "G" groups the new owner must be a Development Manager).
-
-```
-update_group_owner(GroupFri='string', Owner='string')
-```
-#### Parameters
-- **GroupFri** - FRI of the group to be updated.
-- **Owner** - User ID of the new group owner.
-
-#### Response
-```
-{ 'GroupInfo' : {
-    'GroupName' : 'string',
-    'GroupFri' : 'string',
-    'Owner' : 'string'
-    }
-}
-```
-#### Details
-- **GroupName** (string) - Name of the group
-- **GroupFri** (string) - Group FRI
-- **Owner** - (string) - User ID of the new group owner
-
-#### Enabling Assignments
-- `fset:grp:assignment:*:fset-group-admin:*:o-*:*`
 
 ### Add Assignments to a Group
 Adds an assignment or set of assignments to the group. Once an assignement has been added, a member of the group can be granted the assignments. If the assignment has not been added to the group, an assignment can not be granted. 
